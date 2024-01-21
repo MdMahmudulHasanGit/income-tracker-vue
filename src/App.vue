@@ -1,21 +1,19 @@
 <template>
   <Header :totalIncome="totalIncome" />
-  <Form />
+  <Form @add-income="addIncome" />
+  <IncomeList :income="income" @remove-item="removeItem" />
 </template>
 
 <script>
 import Header from "./components/Header.vue";
 import Form from "./components/Form.vue";
-import { reactive, computed, toRefs, onMounted } from "vue";
+import IncomeList from "./components/IncomeList.vue";
+import { reactive, computed, toRefs } from "vue";
 export default {
   name: "App",
   setup() {
     const state = reactive({
-      income: [
-        {
-          value: 400,
-        },
-      ],
+      income: [],
       totalIncome: computed(() => {
         let temp = 0;
         if (state.income.length > 0) {
@@ -27,13 +25,35 @@ export default {
       }),
     });
 
+    function addIncome(data) {
+      let d = data.date.split("-");
+      let newD = new Date(d[0], d[1], d[2]);
+
+      state.income = [
+        ...state.income,
+        {
+          id: Date.now(),
+          desc: data.desc,
+          value: parseInt(data.value),
+          date: newD.getTime(),
+        },
+      ];
+    }
+
+    function removeItem(id) {
+      state.income = state.income.filter(v => v.id != id);
+    }
+
     return {
       ...toRefs(state),
+      addIncome,
+      removeItem
     };
   },
   components: {
     Header,
     Form,
+    IncomeList,
   },
 };
 </script>
